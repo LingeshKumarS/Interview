@@ -1,0 +1,29 @@
+Scenario-1(Ascii characters):
+
+Enter the output file path
+output1.txt
+Enter the string to save to file. Hit Ctrl+Z to quit the console
+Hello World.
+Hello ^Z
+
+Output:
+output1.txt
+Hello World.
+Hello 
+
+Scenario-2(Unicode characters):
+Input:
+Enter the output file path
+output2☻.txt
+Enter the string to save to file. Hit Ctrl+Z to quit the console
+Hello World ☻
+Unicode characters :
+☻ ╚ ô
+^Z
+
+Output:
+output2☻.txt
+Hello World ☻
+Unicode characters :
+☻ ╚ ô 
+
