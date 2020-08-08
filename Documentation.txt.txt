@@ -1,0 +1,16 @@
+What program does:
+
+Reads arbitrary data from standard input and writes it to a file.
+
+Inputs:
+1.Output file path.
+2.Input string.
+(ctrl+z is used to mark the end of input).
+(Input string supports utf-16 unicode string)
+
+Output:
+Output file which contains input provided by the user.
+
+
+Limitation:
+1.Program supported only in windows platform.
