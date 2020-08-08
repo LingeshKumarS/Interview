@@ -1,4 +1,4 @@
-What program does:
+What this program does:
 
 Reads arbitrary data from standard input and writes it to a file.
 
