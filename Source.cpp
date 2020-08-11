@@ -3,7 +3,7 @@
 #include "Header.h"
 #include "Test.h"
 
-int ExecuteReadWrite(FILE* inputStream )
+int ExecuteReadWrite(FILE* inputStream, int sizelimit  )
 {
 	wchar_t ofilepath[1000];
 	//wchar_t currchar;
@@ -38,9 +38,26 @@ int ExecuteReadWrite(FILE* inputStream )
 	//		break;
 	//	putwc(currchar, fptr);
 	//} 
-
-	while (fgetws(line, 1000, inputStream) != NULL) {		// New optimized code, which reads line by line from stdin
+	int currlen = 0;
+	int lineLenLimit = sizelimit / sizeof(wchar_t);
+	while (fgetws(line, lineLenLimit, inputStream) != NULL) {		// New optimized code, which reads line by line from stdin
 															// instead of old implementation which reads char by char and writes to file.
+		int linelen = wcslen(line);
+		int totlen = currlen + linelen;
+		
+		if (totlen > lineLenLimit)
+		{
+			int diff = lineLenLimit - currlen;
+			int i = 0;
+			while (i < diff)
+			{
+				fputwc(line[i], fptr);
+				i++;
+			}
+			printf("Size of file limit exceeded, Ignored few characters at the end to fit file size \n");
+			break;
+		}
+		currlen += linelen;
 		fputws(line, fptr);
 	}
 
