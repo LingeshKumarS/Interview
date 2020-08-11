@@ -3,7 +3,7 @@
 #include "Header.h"
 #include "Test.h"
 
-int ExecuteReadWrite(FILE* inputStream, int sizelimit  )
+int ExecuteReadWrite( int sizelimit ,FILE* inputStream  )
 {
 	wchar_t ofilepath[1000];
 	//wchar_t currchar;
