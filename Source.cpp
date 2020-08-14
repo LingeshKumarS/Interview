@@ -3,8 +3,46 @@
 #include "Header.h"
 #include "Test.h"
 
-int ExecuteReadWrite( int sizelimit ,FILE* inputStream  )
+int getdirfrompath(wchar_t* filepath, wchar_t dir[4])
 {
+	
+	int len = wcslen(filepath);
+		for(int i = 0; i < len; i++)
+		{
+			if (filepath[i] >= 'A' && filepath[i] <= 'Z')
+			{
+				if (filepath[i + 1] == ':' && filepath[i + 2] == '\\')
+				{
+					dir[0] = filepath[i];
+					dir[1] = filepath[i + 1];
+					dir[2] = filepath[i + 2];
+					dir[3] = '\0';
+				}
+				return 0;
+			}
+		}
+		return 1;
+}
+int isvalidpath(wchar_t* filepath)
+{
+	//basic filepath check
+	int len = wcslen(filepath);
+	if (len <= 0)
+		return 1;
+	if (filepath[0] == '"' || filepath[len - 1] == '"')
+		return 0;
+
+	return 1;
+}
+
+
+int ExecuteReadWrite( unsigned int sizelimit  ,FILE* inputStream  )
+{
+	
+	::ULARGE_INTEGER lpFreeBytesAvailableToCaller{};
+	::ULARGE_INTEGER lpTotalNumberOfBytes{};
+	::ULARGE_INTEGER lpTotalNumberOfFreeBytes{};
+	
 	wchar_t ofilepath[1000];
 	//wchar_t currchar;
 	wchar_t line[1000];
@@ -16,17 +54,35 @@ int ExecuteReadWrite( int sizelimit ,FILE* inputStream  )
 	//ofilepath = L"Out.txt";
 	wcscpy_s(ofilepath, L"Out.txt");
 	#else
-	wscanf_s(L"%s", ofilepath, _countof(ofilepath));
+	wscanf_s(L"%[^\n]%*c", ofilepath, _countof(ofilepath));			// Modified to get the filepath even if it has spaces
 	#endif
 
-	fflush(inputStream);
+	if (!isvalidpath(ofilepath))
+	{
+		printf("filepath starts/ends with a quote, give filepath without quotes");
+		return 1;
+	}
 
+	fflush(inputStream);
+	
 	_wfopen_s(&fptr, ofilepath, L"w");
 	if (!fptr)
 	{
 		printf("Failed to create/open file");
 		return 1;
 	}
+	
+	// Checking available disk space Start
+	wchar_t dir[4];				
+	int rc;
+	unsigned int *xyz;
+	if (!getdirfrompath(ofilepath, dir))
+		rc = GetDiskFreeSpaceExW(dir, &lpFreeBytesAvailableToCaller, &lpTotalNumberOfBytes, &lpTotalNumberOfFreeBytes);
+	else
+		rc = GetDiskFreeSpaceExW(NULL, &lpFreeBytesAvailableToCaller, &lpTotalNumberOfBytes, &lpTotalNumberOfFreeBytes);
+	sizelimit = (sizelimit < lpTotalNumberOfFreeBytes.QuadPart)? sizelimit : lpTotalNumberOfFreeBytes.QuadPart;  // Updating file size with min(2GB , available disk size) , size 2GB is max size that a file editor can read.
+	// Checking available disk space End
+
 	_setmode(_fileno(fptr), _O_U16TEXT);
 
 	printf("Enter the string to save to file. Hit Ctrl+Z to quit the console \n");
